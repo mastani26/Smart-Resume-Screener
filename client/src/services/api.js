@@ -1,34 +1,15 @@
-```javascript
 // =========================================================
 // BACKEND API URL
-// =========================================================
-//
-// IMPORTANT:
-// Do NOT use http://localhost:5000 in the deployed frontend.
-//
-// Replace this URL with your DEPLOYED BACKEND URL.
-// If your backend is deployed at the same Vercel URL,
-// keep the URL below.
-//
 // =========================================================
 
 const API_BASE_URL =
   "https://smart-resume-screener-pzfr.vercel.app";
 
-
 // =========================================================
 // UPLOAD RESUMES
-//
-// Supports:
-// - Single resume
-// - Multiple resumes
-// - Folder upload
-//
-// Backend field name: resumes
 // =========================================================
 
 export const uploadResumes = async (files) => {
-
   const formData = new FormData();
 
   files.forEach((file) => {
@@ -39,7 +20,7 @@ export const uploadResumes = async (files) => {
     `${API_BASE_URL}/api/resume/upload`,
     {
       method: "POST",
-      body: formData
+      body: formData,
     }
   );
 
@@ -47,14 +28,12 @@ export const uploadResumes = async (files) => {
 
   if (!response.ok) {
     throw new Error(
-      data.message ||
-      "Failed to upload resumes"
+      data.message || "Failed to upload resumes"
     );
   }
 
   return data;
 };
-
 
 // =========================================================
 // ANALYZE RESUMES
@@ -64,20 +43,17 @@ export const analyzeResumes = async (
   resumeIds,
   jobDescription
 ) => {
-
   const response = await fetch(
     `${API_BASE_URL}/api/resume/analyze-batch`,
     {
       method: "POST",
-
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
-
       body: JSON.stringify({
         resumeIds,
-        jobDescription
-      })
+        jobDescription,
+      }),
     }
   );
 
@@ -85,54 +61,35 @@ export const analyzeResumes = async (
 
   if (!response.ok) {
     throw new Error(
-      data.message ||
-      "Failed to analyze resumes"
+      data.message || "Failed to analyze resumes"
     );
   }
 
   return data;
 };
 
-
 // =========================================================
 // COMPLETE SCREENING
-//
-// 1. Upload resumes
-// 2. Get resume IDs
-// 3. Analyze resumes
 // =========================================================
 
 export const screenResumes = async (
   files,
   jobDescription
 ) => {
-
-  if (
-    !files ||
-    files.length === 0
-  ) {
+  if (!files || files.length === 0) {
     throw new Error(
       "Please select at least one resume."
     );
   }
 
-  if (
-    !jobDescription ||
-    !jobDescription.trim()
-  ) {
+  if (!jobDescription || !jobDescription.trim()) {
     throw new Error(
       "Please enter a job description."
     );
   }
 
-
-  // -------------------------------------------------------
   // STEP 1: UPLOAD
-  // -------------------------------------------------------
-
-  const uploadResult =
-    await uploadResumes(files);
-
+  const uploadResult = await uploadResumes(files);
 
   if (
     !uploadResult.resumes ||
@@ -143,77 +100,56 @@ export const screenResumes = async (
     );
   }
 
-
-  // -------------------------------------------------------
   // STEP 2: GET RESUME IDs
-  // -------------------------------------------------------
+  const resumeIds = uploadResult.resumes.map(
+    (resume) => resume.resumeId
+  );
 
-  const resumeIds =
-    uploadResult.resumes.map(
-      (resume) =>
-        resume.resumeId
-    );
-
-
-  // -------------------------------------------------------
   // STEP 3: ANALYZE
-  // -------------------------------------------------------
-
-  const analysisResult =
-    await analyzeResumes(
-      resumeIds,
-      jobDescription
-    );
-
+  const analysisResult = await analyzeResumes(
+    resumeIds,
+    jobDescription
+  );
 
   return analysisResult;
 };
-
 
 // =========================================================
 // GET RANKED RESULTS
 // =========================================================
 
 export const getResults = async () => {
-
   const response = await fetch(
     `${API_BASE_URL}/api/resume/results`
   );
 
-  const data =
-    await response.json();
+  const data = await response.json();
 
   if (!response.ok) {
     throw new Error(
-      data.message ||
-      "Failed to fetch results"
+      data.message || "Failed to fetch results"
     );
   }
 
   return data;
 };
-
 
 // =========================================================
 // HEALTH CHECK
 // =========================================================
 
 export const checkBackendHealth = async () => {
-
   const response = await fetch(
     `${API_BASE_URL}/api/health`
   );
 
-  const data =
-    await response.json();
+  const data = await response.json();
 
   if (!response.ok) {
     throw new Error(
-      data.message ||
-      "Backend health check failed"
+      data.message || "Backend health check failed"
     );
   }
 
   return data;
 };
-```
