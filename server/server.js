@@ -13,7 +13,9 @@ const cors = require("cors");
 const multer = require("multer");
 const fs = require("fs");
 
-const { PDFParse } = require("pdf-parse");
+// IMPORTANT: pdf-parse@1.1.1 uses this format
+const pdfParse = require("pdf-parse");
+
 const mammoth = require("mammoth");
 
 const app = express();
@@ -94,13 +96,8 @@ const extractResumeText = async (file) => {
   ) {
     const fileBuffer = fs.readFileSync(file.path);
 
-    const parser = new PDFParse({
-      data: fileBuffer
-    });
-
-    const pdfData = await parser.getText();
-
-    await parser.destroy();
+    // pdf-parse@1.1.1 API
+    const pdfData = await pdfParse(fileBuffer);
 
     return pdfData.text || "";
   }
@@ -129,11 +126,10 @@ const extractResumeText = async (file) => {
 // =========================================================
 // UPLOAD RESUMES
 //
-// This same endpoint supports:
-//
-// 1. One single resume
+// Supports:
+// 1. One resume
 // 2. Multiple resumes
-// 3. A complete folder of resumes
+// 3. Complete folder of resumes
 //
 // Field name: resumes
 // =========================================================
@@ -806,7 +802,7 @@ app.use(
 );
 
 // =========================================================
-// START SERVER
+// VERCEL EXPORT
 // =========================================================
 
 module.exports = app;
