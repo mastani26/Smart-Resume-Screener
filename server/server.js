@@ -20,23 +20,36 @@ const mammoth = require("mammoth");
 
 const app = express();
 
-const PORT = 5000;
 
 // =========================================================
 // MONGODB CONNECTION
 // =========================================================
+let mongoConnection;
 
-mongoose
-  .connect(process.env.MONGODB_URI)
-  .then(() => {
+async function connectDB() {
+  if (mongoConnection) {
+    return mongoConnection;
+  }
+
+  mongoConnection = mongoose.connect(
+    process.env.MONGODB_URI
+  );
+
+  try {
+    await mongoConnection;
     console.log("MongoDB connected successfully");
-  })
-  .catch((error) => {
+    return mongoConnection;
+  } catch (error) {
+    mongoConnection = null;
+
     console.error(
       "MongoDB connection failed:",
       error.message
     );
-  });
+
+    throw error;
+  }
+}
 
 // =========================================================
 // MIDDLEWARE
@@ -45,12 +58,24 @@ mongoose
 app.use(cors());
 app.use(express.json());
 
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Database connection failed"
+    });
+  }
+});
+
 // =========================================================
 // FILE UPLOAD CONFIGURATION
 // =========================================================
 
 const upload = multer({
-  dest: "uploads/",
+  dest: "/tmp",
   limits: {
     files: 1000,
     fileSize: 10 * 1024 * 1024

@@ -37,6 +37,11 @@ const resumeSchema = new mongoose.Schema(
       default: []
     },
 
+experienceRelevance: {
+  type: String,
+  default: ""
+},
+
     resumeText: {
       type: String,
       default: ""
