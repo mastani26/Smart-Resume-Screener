@@ -10,7 +10,7 @@ https://smart-resume-screener-2ywz-iota.vercel.app/
 ## 🎥 Demo Video
 
 **2–3 minute project demonstration:**
-[Add your YouTube demo video link here]
+https://drive.google.com/file/d/1Bc9Tp00ViLoML5N4JyNSBcb3LxB85NDn/view?usp=sharing
 
 ---
 
